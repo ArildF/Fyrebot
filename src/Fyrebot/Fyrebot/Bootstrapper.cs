@@ -8,6 +8,8 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
+using Raven.Client;
+using Raven.Client.Embedded;
 using ReactiveUI;
 using Rogue.Fyrebot.Properties;
 using Rogue.MetroFire.CampfireClient;
@@ -47,10 +49,23 @@ namespace Rogue.Fyrebot
 				.WithServiceAllInterfaces()
 				.LifestyleSingleton());
 
+			_container.Register(Component.For<IDocumentStore>().Instance(InitializeDocumentStore()));
+
 			_container.Install(FromAssembly.This());
 			_container.Install(FromAssembly.Containing<RequestLoginMessage>());
 
 			return _container.Resolve<LoginProcessor>();
+		}
+
+		private IDocumentStore InitializeDocumentStore()
+		{
+			var store = new EmbeddableDocumentStore
+			{
+				DataDirectory = "data",
+				UseEmbeddedHttpServer = true
+			};
+			store.Initialize();
+			return store;
 		}
 	}
 }

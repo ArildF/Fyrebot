@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reactive.Linq;
+using Raven.Client;
 using ReactiveUI;
 using Rogue.MetroFire.CampfireClient;
 
@@ -11,12 +12,14 @@ namespace Rogue.Fyrebot.NotifiedOnLogin
 		private readonly IMessageBus _bus;
 		private readonly ISettings _settings;
 		private readonly IConsole _console;
+		private readonly IDocumentStore _store;
 
-		public AutoJoinRooms(IMessageBus bus, ISettings settings, IConsole console)
+		public AutoJoinRooms(IMessageBus bus, ISettings settings, IConsole console, IDocumentStore store)
 		{
 			_bus = bus;
 			_settings = settings;
 			_console = console;
+			_store = store;
 
 			_bus.Listen<RoomInfoReceivedMessage>().Subscribe(
 				msg => _console.WriteLine(ConsoleColor.Green, "Joined room '{0}'", msg.Room.Name));
@@ -32,11 +35,33 @@ namespace Rogue.Fyrebot.NotifiedOnLogin
 
 		private void HandleRoomListMessage(RoomListMessage message)
 		{
+			var rooms = GetRoomsToAutoJoin();
 			_bus.RegisterMessageSource(
-				message.Rooms.Where(r => _settings.AutoJoinRooms.Contains(r.Name))
+				message.Rooms.Where(r => rooms.Rooms.Contains(r.Name))
 					.ToObservable()
 					.Do(r => _console.WriteLine("Joining room '{0}'", r.Name))
 					.Select(r => new RequestJoinRoomMessage(r.Id)));
 		}
+
+		private AutoJoinRoomsData GetRoomsToAutoJoin()
+		{
+			using (var session = _store.OpenSession())
+			{
+				var data = session.Load<AutoJoinRoomsData>("core/autojoinrooms");
+				if (data == null)
+				{
+					data = new AutoJoinRoomsData {Id = "core/autojoinrooms", Rooms = new string[] {}};
+					session.Store(data);
+				}
+				session.SaveChanges();
+				return data;
+			}
+		}
+	}
+
+	public class AutoJoinRoomsData
+	{
+		public string Id { get; set; }
+		public string[] Rooms { get; set; }
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Reflection;
+using Castle.Core;
 using Castle.Facilities.Startable;
 using Castle.Facilities.TypedFactory;
 using Castle.MicroKernel.ModelBuilder.Inspectors;
@@ -48,6 +49,20 @@ namespace Rogue.Fyrebot
 				.BasedOn<IAmNotifiedOnLogin>()
 				.WithServiceAllInterfaces()
 				.LifestyleSingleton());
+
+			_container.Register(AllTypes.FromAssemblyInDirectory(
+				new AssemblyFilter(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)))
+				.BasedOn<IFyreModule>()
+				.WithService.AllInterfaces()
+				.LifestyleSingleton());
+
+			_container.Register(AllTypes.FromAssemblyInDirectory(
+				new AssemblyFilter(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)))
+				.BasedOn<IStartable>()
+				.WithServiceSelf()
+				.LifestyleSingleton());
+
+			
 
 			_container.Register(Component.For<IDocumentStore>().Instance(InitializeDocumentStore()));
 

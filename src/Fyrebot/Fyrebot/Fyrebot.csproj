@@ -110,10 +110,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="CommandDispatcher.cs" />
+    <Compile Include="CommandListener.cs" />
+    <Compile Include="CoreModules\Say.cs" />
     <Compile Include="FyrebotConsole.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="interfaces.cs" />
     <Compile Include="LoginProcessor.cs" />
+    <Compile Include="messages.cs" />
     <Compile Include="NotifiedOnLogin\AutoJoinRooms.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

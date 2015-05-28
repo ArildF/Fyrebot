@@ -23,6 +23,8 @@ namespace Rogue.Fyrebot.NotifiedOnLogin
 
 			_bus.Listen<RoomInfoReceivedMessage>().Subscribe(
 				msg => _console.WriteLine(ConsoleColor.Green, "Joined room '{0}'", msg.Room.Name));
+			_bus.RegisterMessageSource(
+				_bus.Listen<RoomInfoReceivedMessage>().Select(msg => new RequestStartStreamingMessage(msg.Room.Id)));
 			_bus.RegisterMessageSource(_bus.Listen<UserJoinedRoomMessage>()
 				.Select(msg => new RequestRoomInfoMessage(msg.Id)));
 		}
@@ -36,6 +38,7 @@ namespace Rogue.Fyrebot.NotifiedOnLogin
 		private void HandleRoomListMessage(RoomListMessage message)
 		{
 			var rooms = GetRoomsToAutoJoin();
+		
 			_bus.RegisterMessageSource(
 				message.Rooms.Where(r => rooms.Rooms.Contains(r.Name))
 					.ToObservable()

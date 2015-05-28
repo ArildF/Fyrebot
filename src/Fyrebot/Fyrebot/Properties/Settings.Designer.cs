@@ -45,5 +45,14 @@ namespace Rogue.Fyrebot.Properties {
                 this["AutoJoinRooms"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("!fyre")]
+        public string CommandPrefix {
+            get {
+                return ((string)(this["CommandPrefix"]));
+            }
+        }
     }
 }

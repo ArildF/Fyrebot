@@ -6,6 +6,7 @@ namespace Rogue.Fyrebot
 	public interface ISettings
 	{
 		string[] AutoJoinRooms { get; }
+		string CommandPrefix { get; }
 	}
 
 
@@ -18,5 +19,11 @@ namespace Rogue.Fyrebot
 	public interface IAmNotifiedOnLogin
 	{
 		void LoggedIn(LoginInfo info);
+	}
+
+	public interface IFyreModule
+	{
+		string[] HandlesCommands { get; }
+		void ExecuteCommand(int roomId, string command, string args);
 	}
 }

@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using Raven.Client;
 using ReactiveUI;
 using Rogue.MetroFire.CampfireClient;
+using Rogue.MetroFire.CampfireClient.Serialization;
 
 namespace Rogue.Fyrebot.NotifiedOnLogin
 {
@@ -20,30 +21,30 @@ namespace Rogue.Fyrebot.NotifiedOnLogin
 			_settings = settings;
 			_console = console;
 			_store = store;
-
-			_bus.Listen<RoomInfoReceivedMessage>().Subscribe(
-				msg => _console.WriteLine(ConsoleColor.Green, "Joined room '{0}'", msg.Room.Name));
-			_bus.RegisterMessageSource(
-				_bus.Listen<RoomInfoReceivedMessage>().Select(msg => new RequestStartStreamingMessage(msg.Room.Id)));
-			_bus.RegisterMessageSource(_bus.Listen<UserJoinedRoomMessage>()
-				.Select(msg => new RequestRoomInfoMessage(msg.Id)));
 		}
 
 		public void LoggedIn(LoginInfo info)
 		{
-			_bus.Listen<RoomListMessage>().Subscribe(HandleRoomListMessage);
+			_bus.Listen<RoomListMessage>().SubscribeOnce(HandleRoomListMessage);
 			_bus.SendMessage(new RequestRoomListMessage());
 		}
 
 		private void HandleRoomListMessage(RoomListMessage message)
 		{
+			DisplayRoomList(message.Rooms);
+
 			var rooms = GetRoomsToAutoJoin();
-		
-			_bus.RegisterMessageSource(
-				message.Rooms.Where(r => rooms.Rooms.Contains(r.Name))
-					.ToObservable()
-					.Do(r => _console.WriteLine("Joining room '{0}'", r.Name))
-					.Select(r => new RequestJoinRoomMessage(r.Id)));
+
+			message.Rooms.Where(r => rooms.Rooms.Contains(r.Name))
+				.ToObservable()
+				.Do(r => _console.WriteLine("Autojoining room '{0}'", r.Name))
+				.Subscribe(r => _bus.SendMessage(new RequestJoinRoomMessage(r.Id)));
+		}
+
+		private void DisplayRoomList(Room[] rooms)
+		{
+			var names = String.Join(Environment.NewLine, rooms.Select(r => " " + r.Name));
+			_console.WriteLine("Available rooms:\r\n" + names);
 		}
 
 		private AutoJoinRoomsData GetRoomsToAutoJoin()

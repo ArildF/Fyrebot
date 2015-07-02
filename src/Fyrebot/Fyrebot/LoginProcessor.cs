@@ -27,10 +27,8 @@ namespace Rogue.Fyrebot
 
 		public void Login(LoginInfo info)
 		{
-
-			_bus.RegisterSourceAndHandleReply<RequestLoginMessage, RequestLoginResponse>(
-				Observable.Return(new RequestLoginMessage(info), RxApp.TaskpoolScheduler),
-				res => HandleLoginResponse(res, info));
+			_bus.Listen<RequestLoginResponse>().Subscribe(res => HandleLoginResponse(res, info));
+			_bus.SendMessage(new RequestLoginMessage(info));
 		}
 
 		public WaitHandle ApplicationRunning

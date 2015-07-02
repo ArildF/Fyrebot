@@ -12,15 +12,16 @@ namespace Rogue.Fyrebot.CoreModules
 			_bus = bus;
 		}
 
-
-		public string[] HandlesCommands
+		public bool WantsToHandle(string command)
 		{
-			get { return new []{"say"}; }
+			return command.StartsWith("say ");
 		}
 
-		public void ExecuteCommand(int roomId, string command, string args)
+
+		public void ExecuteCommand(int roomId, string command)
 		{
-			_bus.SendMessage(new RequestSpeakInRoomMessage(roomId, args));
+			string say = command.Substring("say ".Length);
+			_bus.SendMessage(new RequestSpeakInRoomMessage(roomId, say));
 		}
 	}
 }

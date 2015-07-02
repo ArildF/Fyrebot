@@ -21,6 +21,8 @@ namespace Rogue.Fyrebot
 	{
 		private readonly WindsorContainer _container;
 
+		public static IMessageBus Bus;
+
 		public Bootstrapper()
 		{
 			_container = new WindsorContainer();
@@ -38,9 +40,11 @@ namespace Rogue.Fyrebot
 
 
 			_container.Register(Component.For<LoginProcessor>());
+			_container.Register(Component.For<CommandMap>());
 
 			_container.Register(Component.For<IMessageBus>().ImplementedBy<MessageBus>().LifestyleSingleton());
 			_container.Register(Component.For<IConsole>().ImplementedBy<FyrebotConsole>().LifestyleSingleton());
+			_container.Register(Component.For<ICampfireRoom>().ImplementedBy<CampfireRoom>().LifestyleTransient());
 			_container.Register(Component.For<ISettings, Rogue.MetroFire.CampfireClient.ISettings>()
 				.Instance(Settings.Default));
 
@@ -68,6 +72,9 @@ namespace Rogue.Fyrebot
 
 			_container.Install(FromAssembly.This());
 			_container.Install(FromAssembly.Containing<RequestLoginMessage>());
+
+			Bus = _container.Resolve<IMessageBus>();
+
 
 			return _container.Resolve<LoginProcessor>();
 		}

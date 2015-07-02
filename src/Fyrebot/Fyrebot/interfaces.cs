@@ -23,7 +23,11 @@ namespace Rogue.Fyrebot
 
 	public interface IFyreModule
 	{
-		string[] HandlesCommands { get; }
-		void ExecuteCommand(int roomId, string command, string args);
+		bool WantsToHandle(string command);
+		void ExecuteCommand(int roomId, string command);
+	}
+
+	public interface ICampfireRoom
+	{
 	}
 }

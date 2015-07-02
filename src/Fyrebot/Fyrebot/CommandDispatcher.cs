@@ -13,29 +13,37 @@ namespace Rogue.Fyrebot
 	{
 		private readonly IMessageBus _bus;
 		private readonly IList<IFyreModule> _modules;
+		private readonly IConsole _console;
 		private IDisposable _subscription;
 
-		public CommandDispatcher(IMessageBus bus, IList<IFyreModule> modules)
+		public CommandDispatcher(IMessageBus bus, IList<IFyreModule> modules, IConsole console)
 		{
 			_bus = bus;
 			_modules = modules;
+			_console = console;
 		}
 
 		public void Start()
 		{
+			_console.WriteLine("Command dispatcher starting");
 			var query =
 				from message in _bus.Listen<FyreBotCommandMessage>()
-				let components = message.Command.Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries)
-				let firstCommand = components.FirstOrDefault()
-				let args = message.Command.Trim().Substring(firstCommand != null ? firstCommand.Length : 0).Trim()
-				let handler = _modules.FirstOrDefault(m => m.HandlesCommands.Contains(firstCommand))
-				select new {Handler = handler, Command = firstCommand, message.RoomId, Args = args};
+				from handler in _modules.Where(m => m.WantsToHandle(message.Command))
+				select new {Handler = handler, message.RoomId, message.Command};
 
 			_subscription = query.Subscribe(handler =>
 			{
-				if (handler.Handler != null)
+				try
 				{
-					handler.Handler.ExecuteCommand(handler.RoomId, handler.Command, handler.Args);
+					if (handler.Handler != null)
+					{
+						handler.Handler.ExecuteCommand(handler.RoomId, handler.Command);
+					}
+				}
+				catch (Exception e)
+				{
+					_console.WriteLine(ConsoleColor.Red, "Exception: {0}", e);
+					_bus.SendMessage(new RequestSpeakInRoomMessage(handler.RoomId, "wat"));
 				}
 			});
 		}

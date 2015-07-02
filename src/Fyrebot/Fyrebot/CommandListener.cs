@@ -21,10 +21,11 @@ namespace Rogue.Fyrebot
 
 		public void Start()
 		{
+			var commandPrefix = _settings.CommandPrefix + " ";
 			_subscription = _bus.RegisterMessageSource(_bus.Listen<MessagesReceivedMessage>()
 				.SelectMany(msg => msg.Messages)
-				.Where(msg => msg.Type == MessageType.TextMessage && msg.Body.StartsWith(_settings.CommandPrefix))
-				.Select(msg => new FyreBotCommandMessage(msg.RoomId, msg.Body.Substring(_settings.CommandPrefix.Length))));
+				.Where(msg => msg.Type == MessageType.TextMessage && msg.Body.StartsWith(commandPrefix))
+				.Select(msg => new FyreBotCommandMessage(msg.RoomId, msg.Body.Substring(commandPrefix.Length).Trim())));
 		}
 
 		public void Stop()

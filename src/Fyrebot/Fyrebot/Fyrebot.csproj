@@ -43,6 +43,10 @@
       <HintPath>..\packages\Castle.Windsor.3.0.0.3001\lib\net40-client\Castle.Windsor.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="CommandLine, Version=1.9.71.2, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommandLineParser.1.9.71\lib\net40\CommandLine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CompilerServices.AsyncTargetingPack.Net4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CompilerServices.AsyncTargetingPack.1.0.1\lib\net40\Microsoft.CompilerServices.AsyncTargetingPack.Net4.dll</HintPath>
       <Private>True</Private>
@@ -110,8 +114,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="CampfireRoomCreator.cs" />
     <Compile Include="CommandDispatcher.cs" />
     <Compile Include="CommandListener.cs" />
+    <Compile Include="CommandMap.cs" />
+    <Compile Include="CoreModules\Room.cs" />
     <Compile Include="CoreModules\Say.cs" />
     <Compile Include="FyrebotConsole.cs" />
     <Compile Include="Extensions.cs" />
@@ -126,7 +133,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="CampfireRoom.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
